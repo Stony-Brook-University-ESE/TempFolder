@@ -18,22 +18,91 @@ jobs:
       # For more information on this runner, see the documentation at: https://github.com/classroom-resources/autograding-io-grader
       #
       # For example, you could run a test suite like this:
-      # - name: Run tests
-      #   uses: classroom-resources/autograding-io-grader@v1
-      #     with:
-      #       test-name: Addition Test
-      #       id: addition-test
-      #       command: "./bin/add.sh"
-      #       input: 1 2
-      #       expected-output: 3
-      #       comparison-method: exact
-      #       timeout: 10
+
+    - name: Test 1 Three Insertions and One Undo
+      uses: classroom-resources/autograding-io-grader@v1
+      id: test1
+      with:
+        test-name: test_1
+        setup-command: gcc -o snapshot snapshot.c
+        command: ./snapshot
+        input: "insert hi \ninsert world \ninsert !\nundo\n\n"
+        expected-output: "Final Text: world hi \n"
+        comparison-method: exact
+        timeout: 1
+        max-score: 20
+
+    - name: Test 2 Two Insertions and two Undos
+      uses: classroom-resources/autograding-io-grader@v1
+      id: test2
+      with:
+        test-name: test_2
+        setup-command: gcc -o snapshot snapshot.c
+        command: ./snapshot
+        input: |-
+          insert hi 
+          insert world 
+          undo
+          undo\n\n
+        expected-output: "Final Text: \n"
+        comparison-method: exact
+        timeout: 1
+        max-score: 20
+
+    - name: Test 3 Two Insertions
+      uses: classroom-resources/autograding-io-grader@v1
+      id: test3
+      with:
+        test-name: test_3
+        setup-command: gcc -o snapshot snapshot.c
+        command: ./snapshot
+        input: |-
+          insert hi 
+          insert world 
+        expected-output: "Final Text: world hi \n"
+        comparison-method: exact
+        timeout: 1
+        max-score: 20
+
+    - name: Test 4 One Insertion and two Undos
+      uses: classroom-resources/autograding-io-grader@v1
+      id: test4
+      with:
+        test-name: test_4
+        setup-command: gcc -o snapshot snapshot.c
+        command: ./snapshot
+        input: |-
+          insert hi 
+          undo
+          undo\n\n
+
+        expected-output: "Final Text: \n"
+        comparison-method: exact
+        timeout: 1
+        max-score: 20
+
+    - name: Test 5 one Undo
+      uses: classroom-resources/autograding-io-grader@v1
+      id: test5
+      with:
+        test-name: test_5
+        setup-command: gcc -o snapshot snapshot.c
+        command: ./snapshot
+        input: |-
+          undo\n\n
+
+        expected-output: "Final Text: \n"
+        comparison-method: exact
+        timeout: 1
+        max-score: 20
+
     - name: Autograding Reporter
       uses: classroom-resources/autograding-grading-reporter@v1
-      # For more information on this runner, see the documentation at https://github.com/classroom-resources/autograding-grading-reporter
-      # To output the results of the tests, you can use the
-      # autograding-grading-reporter action like this:
-      # env:
-      # ADDITION-TEST_RESULTS: "${{ steps.addition - test.outputs.result }}"
-      #     with:
-      #         runners: addition-test
+      env: 
+        TEST1_RESULTS: ${{ steps.test1.outputs.result }}
+        TEST2_RESULTS: ${{ steps.test2.outputs.result }}
+        TEST3_RESULTS: ${{ steps.test3.outputs.result }}
+        TEST4_RESULTS: ${{ steps.test4.outputs.result }}
+        TEST5_RESULTS: ${{ steps.test5.outputs.result }}
+      with:
+        runners: test1,test2,test3,test4,test5
